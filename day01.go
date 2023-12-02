@@ -6,8 +6,31 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 )
 
+func doCheck(line string, c string, i int, start bool) int {
+	numbers := []string{"one", "two", "three", "four", "five", "six", "seven", "eight", "nine"}
+	ln := len(numbers)
+
+	n, err := strconv.Atoi(c)
+	if err == nil {
+		return n
+	} else {
+		var lslice string
+		if start {
+			lslice = line[:i+1]
+		} else {
+			lslice = line[i:]
+		}
+		for j := 0; j < ln; j++ {
+			if strings.Contains(lslice, numbers[j]) {
+				return j + 1
+			}
+		}
+	}
+	return 0
+}
 
 func getNumber(line string) int {
 	if len(line) == 0 {
@@ -18,24 +41,17 @@ func getNumber(line string) int {
 	var first int
 	var second int
 
-	for (first == 0 || second == 0) {
+	for first == 0 || second == 0 {
 		if first == 0 {
-			f, err := strconv.Atoi(string(line[i]))
-			if err == nil {
-				first = f
-			}
+			first = doCheck(line, string(line[i]), i, true)
 		}
 		if second == 0 {
-			s, err := strconv.Atoi(string(line[ll-i]))
-			if err == nil {
-				second = s
-			}
+			second = doCheck(line, string(line[ll-i]), ll-i, false)
 		}
 		i++
 	}
 	return (first * 10) + second
 }
-
 
 func sumSlice(n []int) int {
 	result := 0
@@ -54,7 +70,7 @@ func ReadFile(filePath string) (int, error) {
 
 	fScanner := bufio.NewScanner(f)
 	fScanner.Split(bufio.ScanLines)
-	
+
 	var nums []int
 	for fScanner.Scan() {
 		line := fScanner.Text()
