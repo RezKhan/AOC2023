@@ -8,41 +8,63 @@ import (
 	"strings"
 )
 
-func diceCountSet(set string, targetDice map[string]int) bool {
-	gameDice := map[string]int{
+func findChunk(str string, i int) (string, int) {
+	next := 0
+
+	comma := strings.Index(str[i:], ",")
+	if comma < 0 {
+		comma = len(str)
+	}
+
+	next = i + comma
+	if next == -1 || next > len(str) {
+		next = len(str)
+	}
+
+	chunk := str[i:next]
+
+	return chunk, next
+}
+
+func diceCountHand(hand string, targetDice map[string]int) bool {
+	handDice := map[string]int{
 		"red":   0,
 		"green": 0,
 		"blue":  0,
 	}
 
 	i := 0
-	for i < len(set) {
-		var chunk string
-		next := 0
-
-		comma := strings.Index(set[i:], ",")
-		if comma < 0 {
-			comma = i
-		}
-		next = i + comma
-		if next == -1 || next > len(set) {
-			next = len(set)
-		}
-
-		chunk = set[i:next]
+	for i < len(hand) {
+		chunk, next := findChunk(hand, i)
 		c := strings.Split(chunk, " ")
 		n, _ := strconv.Atoi(c[0])
 		if len(c) > 1 {
-			gameDice[c[1]] += n
+			handDice[c[1]] += n
 		}
 		i = next + 2
 	}
-	// log.Println("target: ", targetDice, "game: ", gameDice)
-	if targetDice["red"] >= gameDice["red"] && targetDice["green"] >= gameDice["green"] && targetDice["blue"] >= gameDice["blue"] {
+	if targetDice["red"] >= handDice["red"] && targetDice["green"] >= handDice["green"] && targetDice["blue"] >= handDice["blue"] {
 		return true
 	} else {
 		return false
 	}
+}
+
+func diceMinCount(hand string, minDice map[string]int) map[string]int {
+	i := 0
+	for i < len(hand) {
+		chunk, next := findChunk(hand, i)
+
+		c := strings.Split(chunk, " ")
+		n, _ := strconv.Atoi(c[0])
+		if len(c) > 1 {
+			if minDice[c[1]] < n {
+				minDice[c[1]] = n
+			}
+		}
+		i = next + 2
+	}
+	return minDice
 }
 
 func sumSlice(n []int) int {
@@ -53,7 +75,7 @@ func sumSlice(n []int) int {
 	return result
 }
 
-func ReadFile(filePath string) {
+func DiceGame(filePath string) {
 	targetDice := map[string]int{
 		"red":   12,
 		"green": 13,
@@ -70,21 +92,32 @@ func ReadFile(filePath string) {
 	fScanner.Split(bufio.ScanLines)
 	var ids []int
 	n := 1
+	power := 0
 	for fScanner.Scan() {
 		game := (fScanner.Text()[strings.Index(fScanner.Text(), ":")+2:])
 		sets := strings.Split(game, "; ")
 		setsTested := true
+		minDice := map[string]int{
+			"red":   0,
+			"green": 0,
+			"blue":  0,
+		}
+
 		for i := 0; i < len(sets); i++ {
-			if !diceCountSet(sets[i], targetDice) {
+			if !diceCountHand(sets[i], targetDice) {
 				setsTested = false
 			}
+			minDice = diceMinCount(sets[i], minDice)
 		}
+
 		if setsTested {
 			ids = append(ids, n)
 		}
+		power += minDice["red"] * minDice["green"] * minDice["blue"]
 		n++
 	}
-	log.Println(sumSlice(ids))
+	log.Println("Sum of IDs:", sumSlice(ids))
+	log.Println("Dice Power:", power)
 }
 
 func main() {
@@ -93,5 +126,5 @@ func main() {
 	}
 
 	filePath := os.Args[1]
-	ReadFile(filePath)
+	DiceGame(filePath)
 }
