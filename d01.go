@@ -77,7 +77,6 @@ func ReadFile(filePath string) (int, error) {
 		n := getNumber(line)
 		nums = append(nums, n)
 	}
-
 	return sumSlice(nums), nil
 }
 
@@ -85,7 +84,7 @@ func main() {
 	if len(os.Args) != 2 {
 		log.Fatal("Enter filename of test file")
 	}
-
+	
 	filePath := os.Args[1]
 	sum, err := ReadFile(filePath)
 	if err != nil {
