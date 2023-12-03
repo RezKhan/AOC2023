@@ -53,7 +53,7 @@ func getNumber(line string) int {
 	return (first * 10) + second
 }
 
-func sumSlice(n []int) int {
+func sumD01Slice(n []int) int {
 	result := 0
 	for i := 0; i < len(n); i++ {
 		result += n[i]
@@ -77,7 +77,7 @@ func ReadLines(filePath string) (int, error) {
 		n := getNumber(line)
 		nums = append(nums, n)
 	}
-	return sumSlice(nums), nil
+	return sumD01Slice(nums), nil
 }
 
 func main() {
