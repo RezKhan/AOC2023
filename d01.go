@@ -61,7 +61,7 @@ func sumSlice(n []int) int {
 	return result
 }
 
-func ReadFile(filePath string) (int, error) {
+func ReadLines(filePath string) (int, error) {
 	f, err := os.Open(filePath)
 	if err != nil {
 		return 0, err
@@ -84,9 +84,9 @@ func main() {
 	if len(os.Args) != 2 {
 		log.Fatal("Enter filename of test file")
 	}
-	
+
 	filePath := os.Args[1]
-	sum, err := ReadFile(filePath)
+	sum, err := ReadLines(filePath)
 	if err != nil {
 		log.Fatal(err)
 	}
