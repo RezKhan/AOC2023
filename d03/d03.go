@@ -53,6 +53,51 @@ func matrixAdjacency(matrix [][]rune, mnum matrixNumber) matrixNumber {
 	return mnum
 }
 
+func findMatrixNum(row int, col int, endrow int, matrixnums []matrixNumber) {
+	fmt.Println(row, col)
+	for i := 0; i < endrow; i++ {
+		if row != matrixnums[i].row {
+			continue
+		}
+		if col >= matrixnums[i].start && col <= matrixnums[i].end {
+			fmt.Printf("%d = %d | ", i, matrixnums[i].number)
+			if i%5 == 0 {
+				fmt.Printf("\n")
+			}
+		}
+	}
+}
+
+func checkGearAdjacency(matrixnums []matrixNumber, matrixgears []matrixGear, matrix [][]rune) {
+	for n := 0; n < len(matrixgears); n++ {
+		// num1 := 0
+		// num2 := 0
+		rowmin := matrixgears[n].row - 1
+		colmin := matrixgears[n].col - 1
+		rowmax := matrixgears[n].row + 1
+		colmax := matrixgears[n].col + 1
+		if rowmin < 0 {
+			rowmin = 0
+		}
+		if colmin < 0 {
+			colmin = 0
+		}
+		if rowmax > len(matrix) {
+			rowmax = len(matrix)
+		}
+		if colmax > len(matrix[0]) {
+			colmax = len(matrix[0])
+		}
+		for i := rowmin; i < rowmax; i++ {
+			for j := colmin; j < colmax; j++ {
+				if unicode.IsDigit(matrix[i][j]) {
+					findMatrixNum(i, j, rowmax+1, matrixnums)
+				}
+			}
+		}
+	}
+}
+
 func getMatrixNumber(line []rune, row int, start int, matrix [][]rune) (matrixNumber, int) {
 	var mnum matrixNumber
 	var tempnums []int
@@ -116,15 +161,11 @@ func ReadMatrix(filePath string) {
 		}
 	}
 	log.Println("Total of adjacent numbers is: ", total)
-	for i := 0; i < len(matrixgears); i++ {
-		fmt.Printf("gear found at %d:%d. ", matrixgears[i].row, matrixgears[i].col)
-		if i%5 == 0 {
-			fmt.Printf("\n")
-		}
-	}
+
+	checkGearAdjacency(matrixnums, matrixgears, matrix)
 }
 
 func main() {
-	filePath := "./d03input.txt"
+	filePath := "./d03test.txt"
 	ReadMatrix(filePath)
 }
