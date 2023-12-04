@@ -18,12 +18,10 @@ type matrixNumber struct {
 }
 
 func matrixAdjacency(matrix [][]rune, mnum matrixNumber) matrixNumber {
-	fmt.Printf("Checking %d at [%d,%d:%d] ", mnum.number, mnum.row, mnum.start, mnum.end)
-
 	rowmin := mnum.row - 1
 	colmin := mnum.start - 1
-	rowmax := mnum.row + 1
-	colmax := mnum.end + 1
+	rowmax := mnum.row + 2
+	colmax := mnum.end + 2
 	if rowmin < 0 {
 		rowmin = 0
 	}
@@ -36,19 +34,17 @@ func matrixAdjacency(matrix [][]rune, mnum matrixNumber) matrixNumber {
 	if colmax > len(matrix[0]) {
 		colmax = len(matrix[0])
 	}
-	fmt.Printf("range [%d,%d] to [%d,%d]\n", rowmin, colmin, rowmax, colmax)
+	// fmt.Printf("range [%d,%d] to [%d,%d]\n", rowmin, colmin, rowmax, colmax)
 	for i := rowmin; i < rowmax; i++ {
 		for j := colmin; j < colmax; j++ {
-			fmt.Printf("range [%d,%d] to [%d,%d] - [%d,%d]: %s", rowmin, colmin, rowmax, colmax, i, j, string(matrix[i][j]))
+			// fmt.Printf("range [%d,%d] to [%d,%d] - [%d,%d]: %s", rowmin, colmin, rowmax, colmax, i, j, string(matrix[i][j]))
 			if !unicode.IsDigit(matrix[i][j]) && string(matrix[i][j]) != "." {
 				fmt.Printf(" | is punct")
 				mnum.adjacent = true
 			}
-			fmt.Printf("\n")
+			// fmt.Printf("\n")
 		}
 	}
-	// fmt.Println(mnum)
-
 	return mnum
 }
 
@@ -59,20 +55,21 @@ func getMatrixNumber(line []rune, row int, start int, matrix [][]rune) (matrixNu
 		if unicode.IsDigit(line[i]) {
 			tempnums = append(tempnums, int(line[i]-'0'))
 		} else {
-			ll := len(tempnums)
-			num := 0
-			for j := 0; j < ll; j++ {
-				num += int(math.Pow10(ll-j-1)) * tempnums[j]
-			}
-			mnum.number = num
-			mnum.row = row
-			mnum.start = start
-			mnum.end = i - 1
-			mnum = matrixAdjacency(matrix, mnum)
-			return mnum, i
+			break
 		}
 	}
-	return mnum, 0
+	ll := len(tempnums)
+	num := 0
+	for j := 0; j < ll; j++ {
+		num += int(math.Pow10(ll-j-1)) * tempnums[j]
+	}
+	mnum.number = num
+	mnum.row = row
+	mnum.start = start
+	mnum.end = start + ll - 1
+	mnum = matrixAdjacency(matrix, mnum)
+
+	return mnum, mnum.end + 1
 }
 
 func ReadMatrix(filePath string) {
@@ -111,6 +108,6 @@ func ReadMatrix(filePath string) {
 }
 
 func main() {
-	filePath := "./d03test2.txt"
+	filePath := "./d03input.txt"
 	ReadMatrix(filePath)
 }
