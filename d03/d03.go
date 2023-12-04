@@ -17,6 +17,11 @@ type matrixNumber struct {
 	adjacent bool
 }
 
+type matrixGear struct {
+	row int
+	col int
+}
+
 func matrixAdjacency(matrix [][]rune, mnum matrixNumber) matrixNumber {
 	rowmin := mnum.row - 1
 	colmin := mnum.start - 1
@@ -39,7 +44,7 @@ func matrixAdjacency(matrix [][]rune, mnum matrixNumber) matrixNumber {
 		for j := colmin; j < colmax; j++ {
 			// fmt.Printf("range [%d,%d] to [%d,%d] - [%d,%d]: %s", rowmin, colmin, rowmax, colmax, i, j, string(matrix[i][j]))
 			if !unicode.IsDigit(matrix[i][j]) && string(matrix[i][j]) != "." {
-				fmt.Printf(" | is punct")
+				// fmt.Printf(" | is punct")
 				mnum.adjacent = true
 			}
 			// fmt.Printf("\n")
@@ -89,22 +94,34 @@ func ReadMatrix(filePath string) {
 
 	var matrixnums []matrixNumber
 	var mnum matrixNumber
+	var matrixgears []matrixGear
+	var mgear matrixGear
 	for i, row := range matrix {
 		for j := 0; j < len(row); j++ {
 			if unicode.IsDigit(row[j]) {
 				mnum, j = getMatrixNumber(row, i, j, matrix)
 				matrixnums = append(matrixnums, mnum)
+			} else if string(row[j]) == "*" {
+				mgear.row = i
+				mgear.col = j
+				matrixgears = append(matrixgears, mgear)
 			}
 		}
 	}
 	total := 0
 	for i := 0; i < len(matrixnums); i++ {
-		fmt.Println(matrixnums[i])
+		// fmt.Println(matrixnums[i])
 		if matrixnums[i].adjacent {
 			total += matrixnums[i].number
 		}
 	}
 	log.Println("Total of adjacent numbers is: ", total)
+	for i := 0; i < len(matrixgears); i++ {
+		fmt.Printf("gear found at %d:%d. ", matrixgears[i].row, matrixgears[i].col)
+		if i%5 == 0 {
+			fmt.Printf("\n")
+		}
+	}
 }
 
 func main() {
