@@ -22,9 +22,8 @@ func matrixAdjacency(matrix [][]rune, mnum matrixNumber) matrixNumber {
 
 	rowmin := mnum.row - 1
 	colmin := mnum.start - 1
-	rowmax := mnum.row + 2
+	rowmax := mnum.row + 1
 	colmax := mnum.end + 1
-	fmt.Printf("range [%d,%d] to [%d,%d]\n", rowmin, colmin, rowmax, colmax)
 	if rowmin < 0 {
 		rowmin = 0
 	}
@@ -37,6 +36,7 @@ func matrixAdjacency(matrix [][]rune, mnum matrixNumber) matrixNumber {
 	if colmax > len(matrix[0]) {
 		colmax = len(matrix[0])
 	}
+	fmt.Printf("range [%d,%d] to [%d,%d]\n", rowmin, colmin, rowmax, colmax)
 	for i := rowmin; i < rowmax; i++ {
 		for j := colmin; j < colmax; j++ {
 			fmt.Printf("range [%d,%d] to [%d,%d] - [%d,%d]: %s", rowmin, colmin, rowmax, colmax, i, j, string(matrix[i][j]))
@@ -111,6 +111,6 @@ func ReadMatrix(filePath string) {
 }
 
 func main() {
-	filePath := "./d03input.txt"
+	filePath := "./d03test2.txt"
 	ReadMatrix(filePath)
 }
