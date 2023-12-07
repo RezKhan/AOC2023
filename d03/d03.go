@@ -22,7 +22,7 @@ type matrixGear struct {
 	col int
 }
 
-func matrixAdjacency(matrix [][]rune, mnum matrixNumber) matrixNumber {
+func matrixNumberAdjacency(matrix [][]rune, mnum matrixNumber) matrixNumber {
 	rowmin := mnum.row - 1
 	colmin := mnum.start - 1
 	rowmax := mnum.row + 2
@@ -117,7 +117,7 @@ func getMatrixNumber(line []rune, row int, start int, matrix [][]rune) (matrixNu
 	mnum.row = row
 	mnum.start = start
 	mnum.end = start + ll - 1
-	mnum = matrixAdjacency(matrix, mnum)
+	mnum = matrixNumberAdjacency(matrix, mnum)
 
 	return mnum, mnum.end + 1
 }
