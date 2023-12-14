@@ -1,6 +1,8 @@
 package main
 
 import (
+	"cmp"
+	"fmt"
 	"log"
 	rf "readfile"
 	"slices"
@@ -16,31 +18,39 @@ var cardfaces = map[string]int{
 type hand struct {
 	cards    []string
 	bid      int
-	handtype int // based on sequence, 7
+	handtype int // based on sequence, 7 to 1
 	score    int
 }
 
 // hand types:
 // [ 5 ]			5 of a kind: 5 of one
-// [ 4 1 ]			4 of a kind: 4 of one -> then check higher value order
-// [ 3 2 ]			full house: 3 of one, 2 of another -> then check higher value order
-// [ 3 1 1 ]		3 of a kind: 3 of one, 1 of one, 1 of one -> then check higher value order
-// [ 2 2 1 ]		2 pair: 2 of one, 2 of one, 1 of one -> then check higher value order
-// [ 2 1 1 1 ]		1 pair: 2 of one, 1 of one, 1of one, 1 of one  -> then check higher value order
-// [ 1 1 1 1 1 ]	Only ones -> then check higher value order
+// [ 4 1 ]			4 of a kind: 4 of one
+// [ 3 2 ]			full house: 3 of one, 2 of another
+// [ 3 1 1 ]		3 of a kind: 3 of one, 1 of one, 1 of one
+// [ 2 2 1 ]		2 pair: 2 of one, 2 of one, 1 of one
+// [ 2 1 1 1 ]		1 pair: 2 of one, 1 of one, 1of one, 1 of one
+// [ 1 1 1 1 1 ]	high card: only ones
+// 					-> then check higher value order
 
-func checkHandType(hand hand) {
+func checkHandType(hand hand) int {
+	handTypeMap := map[string]int{
+		"5":     7, // 5 of a kind
+		"41":    6, // 4 of a kind
+		"32":    5, // full house
+		"311":   4, // 3 of a kind
+		"221":   3, // two pair
+		"2111":  2, // pair
+		"11111": 1, // high card
+	}
+
 	cards := make([]string, len(hand.cards))
 	copy(cards, hand.cards)
 	slices.Sort(cards)
-	log.Println(hand.cards, cards)
 	var sequences []int
 	s := 1
-	for i := 0; i < len(cards); i++ {
-		if i == 0 {
-			sequences = append(sequences, s)
-			continue
-		}
+	sequences = append(sequences, s)
+
+	for i := 1; i < len(cards); i++ {
 		if cards[i] == cards[i-1] {
 			s++
 			sequences[len(sequences)-1] = s
@@ -49,12 +59,14 @@ func checkHandType(hand hand) {
 			sequences = append(sequences, s)
 		}
 	}
+
 	slices.Sort(sequences)
 	slices.Reverse(sequences)
-	log.Println(sequences)
+	strseq := strings.Trim(strings.Join(strings.Fields(fmt.Sprint(sequences)), ""), "[]")
+	return handTypeMap[strseq]
 }
 
-func partOne(lines []string) {
+func setHands(lines []string) []hand {
 	var hands []hand
 
 	for _, line := range lines {
@@ -67,9 +79,21 @@ func partOne(lines []string) {
 		}
 		h.cards = cards
 		h.bid = bid
-		checkHandType(h)
+		h.handtype = checkHandType(h)
 		hands = append(hands, h)
 	}
+	return hands
+}
+
+func partOne(lines []string) {
+	hands := setHands(lines)
+	hands2 := make([]hand, len(hands))
+	copy(hands2, hands)
+	slices.SortFunc(hands2, func(a hand, b hand) int {
+		return cmp.Compare(a.handtype, b.handtype)
+	})
+	log.Println(hands)
+	log.Println(hands2)
 }
 
 func main() {
