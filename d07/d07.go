@@ -66,10 +66,25 @@ func checkHandType(hand hand) int {
 	return handTypeMap[strseq]
 }
 
+func checkHighCard(a hand, b hand) int {
+	for i := 0; i < len(a.cards); i++ {
+		if cardfaces[a.cards[i]] == cardfaces[b.cards[i]] {
+			continue
+		}
+		if cardfaces[a.cards[i]] < cardfaces[b.cards[i]] {
+			return -1
+		} else {
+			return 1
+		}
+	}
+	return 0
+}
+
 func setHands(lines []string) []hand {
 	var hands []hand
 
 	for _, line := range lines {
+		// log.Println(i, line)
 		var h hand
 		tmp := strings.Split(line, " ")
 		cards := strings.Split(tmp[0], "")
@@ -87,17 +102,32 @@ func setHands(lines []string) []hand {
 
 func partOne(lines []string) {
 	hands := setHands(lines)
+	// make a copy of hands because you don't know how it's going to get messed up
 	hands2 := make([]hand, len(hands))
 	copy(hands2, hands)
+	// first sort to order by winning handtypes
 	slices.SortFunc(hands2, func(a hand, b hand) int {
 		return cmp.Compare(a.handtype, b.handtype)
 	})
-	log.Println(hands)
-	log.Println(hands2)
+	// second sort to order by winnning highcard
+	slices.SortFunc(hands2, func(a hand, b hand) int {
+		if a.handtype == b.handtype {
+			return checkHighCard(a, b)
+		}
+		return cmp.Compare(a.handtype, b.handtype)
+	})
+	// add a score and sum it
+	totalWinnings := 0
+	for i, hand := range hands2 {
+		hand.score = (i + 1) * hand.bid
+		totalWinnings += hand.score
+	}
+	log.Println("Part 1 - Total winnings: ", totalWinnings)
 }
 
 func main() {
-	filePath := "d07test.txt"
+	// filePath := "d07test.txt"
+	filePath := "d07input.txt"
 
 	lines := rf.ReadFile(filePath)
 	partOne(lines)
